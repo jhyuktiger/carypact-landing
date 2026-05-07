@@ -2616,17 +2616,21 @@ document.addEventListener('mousemove', e => {
     });
   }
 
-  function loadScript(src, cb) {
+  function loadScript(src, cb, fallback) {
     const s = document.createElement('script');
     s.src = src;
     s.onload = cb;
+    s.onerror = () => {
+      console.warn('Script load failed:', src);
+      if (fallback) loadScript(fallback, cb);
+    };
     document.head.appendChild(s);
   }
 
   // Three.js → topojson → globe.gl → world topo fetch → init
   loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', () => {
-    loadScript('https://unpkg.com/topojson-client@3/dist/topojson-client.min.js', () => {
-      loadScript('https://unpkg.com/globe.gl@2.27.2/dist/globe.gl.min.js', () => {
+    loadScript('https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js', () => {
+      loadScript('https://cdn.jsdelivr.net/npm/globe.gl@2.27.2/dist/globe.gl.min.js', () => {
         // world-atlas 110m (CDN, 작은 파일 ~100KB)
         fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
           .then(r => r.json())
